@@ -1,9 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
+import { io } from 'socket.io-client';
 
 const CanvasBoard = () => {
   const canvasRef = useRef();
   const [isDrawing, setIsDrawing] = useState(false);
   const [context, setContext] = useState(null);
+
+  const socketRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -18,6 +21,12 @@ const CanvasBoard = () => {
     ctx.lineWidth = 5;
 
     setContext(ctx);
+
+    socketRef.current = io('http://localhost:3001');
+
+    return () => {
+      socketRef.current.disconnect();
+    };
   }, []);
 
   const startDrawing = ({ nativeEvent }) => {

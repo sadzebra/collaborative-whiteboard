@@ -16,7 +16,7 @@ const io = new Server(server, {
   },
 });
 
-io.on("connection", () => {
+io.on("connection", (socket) => {
   console.log(`user connected ${socket.id}`);
 
   // Drawing logic goes here
