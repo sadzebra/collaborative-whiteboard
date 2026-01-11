@@ -32,6 +32,25 @@ const CanvasBoard = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     });
 
+    const handleResize = () => {
+      console.log("Handle rezie");
+
+      const ctx = canvas.getContext("2d");
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      ctx.putImageData(imageData, 0, 0);
+
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 5;
+      setContext(ctx);
+    }
+
+    window.addEventListener("resize", handleResize);
+
     return () => {
       socketRef.current.disconnect();
     };
