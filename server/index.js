@@ -20,6 +20,13 @@ io.on("connection", (socket) => {
   console.log(`user connected ${socket.id}`);
 
   // Drawing logic goes here
+  socket.on("drawing", (data) => {
+    socket.broadcast.emit("drawing", data);
+  });
+
+  socket.on("clear", () => {
+    io.emit("clear");
+  })
 
   socket.on('disconnected', () => {
     cosole.log(`user disconnected ${socket.id}`)
