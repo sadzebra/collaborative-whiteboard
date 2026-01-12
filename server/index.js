@@ -9,9 +9,11 @@ app.use(cors());
 
 const server = http.createServer(app);
 
+const PORT = process.env.PORT || '3001';
+
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
     methods: ["GET", "POST"],
   },
 });
@@ -34,6 +36,6 @@ io.on("connection", (socket) => {
 
 });
 
-server.listen(3001, () => {
+server.listen(PORT, () => {
   console.log("SERVER RUNNING ON PORT 3001");
 });
