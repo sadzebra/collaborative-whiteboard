@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { io } from 'socket.io-client';
 
 const CanvasBoard = () => {
   const canvasRef = useRef();
   const [isDrawing, setIsDrawing] = useState(false);
   const [context, setContext] = useState(null);
+  const [colour, setColour] = useState('#000000');
   const socketRef = useRef(null);
   const lastPosRef = useRef({ x: 0, y: 0 });
 
@@ -46,6 +47,7 @@ const CanvasBoard = () => {
       ctx.lineCap = 'round';
       ctx.strokeStyle = 'black';
       ctx.lineWidth = 5;
+      ctx.strokeStyle = colour;
       setContext(ctx);
     }
 
@@ -56,6 +58,12 @@ const CanvasBoard = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (context) {
+      context.strokeStyle = colour;
+    }
+  }, [colour, context]);
+
   const drawFromServer = (data, ctx) => {
     if (!ctx)
       return;
@@ -63,6 +71,7 @@ const CanvasBoard = () => {
     ctx.beginPath();
     ctx.moveTo(data.x0, data.y0);
     ctx.lineTo(data.x1, data.y1);
+    ctx.strokeStyle = data.colour;
     ctx.stroke();
   }
 
@@ -98,7 +107,8 @@ const CanvasBoard = () => {
         x1: lastPosRef.current.x,
         y1: lastPosRef.current.y,
         x2: offsetX,
-        y2: offsetY
+        y2: offsetY,
+        colour: colour
       });
     }
 
@@ -112,7 +122,7 @@ const CanvasBoard = () => {
   }
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full overflow-hidden">
       <canvas
         ref={canvasRef}
         className="block cursor-crosshair touch-none"
@@ -121,12 +131,28 @@ const CanvasBoard = () => {
         onMouseUp={stopDrawing}
         onMouseOut={stopDrawing}
       />
-      <button
-        onClick={clearBoard}
-        className="absolute top-5 left-5 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded shadow-lg z-10 transition-colors"
-      >
-        Clear Board
-      </button>
+
+      <div className="absolute top-5 left-5 z-50 flex items-center gap-4 p-3 bg-white rounded-xl shadow-lg border border-gray-200">
+
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-gray-500 uppercase">Colour</span>
+          <input
+            type="color"
+            value={colour}
+            onChange={(e) => setColour(e.target.value)}
+            className="w-8 h-8 cursor-pointer rounded border border-gray-300 p-0.5"
+          />
+        </div>
+
+        <div className="w-px h-6 bg-gray-300"></div>
+
+        <button
+          onClick={clearBoard}
+          className="bg-red-500 hover:bg-red-600 text-white text-sm font-bold py-2 px-4 rounded shadow-sm transition-colors"
+        >
+          Clear Board
+        </button>
+      </div>
     </div>
   );
 }
