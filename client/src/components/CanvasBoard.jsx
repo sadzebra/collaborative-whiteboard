@@ -6,6 +6,7 @@ const CanvasBoard = () => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [context, setContext] = useState(null);
   const [colour, setColour] = useState('#000000');
+  const [lineWidth, setLineWidth] = useState(5)
   const socketRef = useRef(null);
   const lastPosRef = useRef({ x: 0, y: 0 });
 
@@ -19,7 +20,7 @@ const CanvasBoard = () => {
 
     ctx.lineCap = 'round';
     ctx.strokeStyle = 'black';
-    ctx.lineWidth = 5;
+    ctx.lineWidth = lineWidth;
 
     setContext(ctx);
 
@@ -46,7 +47,7 @@ const CanvasBoard = () => {
 
       ctx.lineCap = 'round';
       ctx.strokeStyle = 'black';
-      ctx.lineWidth = 5;
+      ctx.lineWidth = lineWidth;
       ctx.strokeStyle = colour;
       setContext(ctx);
     }
@@ -61,18 +62,28 @@ const CanvasBoard = () => {
   useEffect(() => {
     if (context) {
       context.strokeStyle = colour;
+      context.lineWidth = lineWidth;
     }
-  }, [colour, context]);
+  }, [colour, lineWidth, context]);
 
   const drawFromServer = (data, ctx) => {
     if (!ctx)
       return;
 
+    // Store original locla settings
+    const originalColor = ctx.strokeStyle;
+    const originalWidth = ctx.lineWidth;
+
     ctx.beginPath();
     ctx.moveTo(data.x0, data.y0);
     ctx.lineTo(data.x1, data.y1);
     ctx.strokeStyle = data.colour;
+    ctx.lineWidth = data.lineWidth;
     ctx.stroke();
+
+    // Restore local settings
+    ctx.strokeStyle = originalColor;
+    ctx.lineWidth = originalWidth;
   }
 
   const startDrawing = ({ nativeEvent }) => {
@@ -108,7 +119,8 @@ const CanvasBoard = () => {
         y1: lastPosRef.current.y,
         x2: offsetX,
         y2: offsetY,
-        colour: colour
+        colour: colour,
+        lineWidth: lineWidth
       });
     }
 
@@ -141,6 +153,22 @@ const CanvasBoard = () => {
             value={colour}
             onChange={(e) => setColour(e.target.value)}
             className="w-8 h-8 cursor-pointer rounded border border-gray-300 p-0.5"
+          />
+        </div>
+
+        <div className="w-px h-8 bg-gray-300"></div>
+
+        <div className="flex flex-col items-center w-24">
+          <label className="text-[10px] font-bold text-gray-500 uppercase mb-1">
+            Size: {lineWidth}px
+          </label>
+          <input
+            type="range"
+            min="1"
+            max="50"
+            value={lineWidth}
+            onChange={(e) => setLineWidth(parseInt(e.target.value))}
+            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
           />
         </div>
 
