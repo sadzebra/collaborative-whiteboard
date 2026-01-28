@@ -2,6 +2,9 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
+const path = require('path')
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 const app = express();
 
@@ -14,6 +17,10 @@ const io = new Server(server, {
     origin: process.env.CLIENT_URL || "http://localhost:5173",
     methods: ["GET", "POST"],
   },
+});
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 io.on("connection", (socket) => {

@@ -25,7 +25,8 @@ const CanvasBoard = () => {
     setContext(ctx);
 
     const serverUrl = import.meta.env.VITE_SERVER_URL || "http://localhost:3001";
-    socketRef.current = io(serverUrl);
+    // socketRef.current = io(serverUrl);
+    socketRef.current = io();
 
     socketRef.current.on("drawing", (data) => {
       drawFromServer(data, ctx);
